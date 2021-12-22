@@ -1,0 +1,99 @@
+
+wsl --import Ubuntu-1804-detectron2    .\Ubuntu-1804-detectron2    Ubuntu-18.04.tar --version 2
+
+wsl -d Ubuntu-1804-detectron2 --user nvidia
+
+================detectron2================
+
+sudo apt-get update
+sudo apt install python3-pip
+python3 -m pip install --upgrade pip
+
+# install torch: https://pytorch.org/get-started/locally/
+
+--Method-1
+pip3 install torch==1.10.1+cu113 torchvision==0.11.2+cu113 torchaudio==0.10.1+cu113 -f https://download.pytorch.org/whl/cu113/torch_stable.html
+
+# install detectron2: https://github.com/facebookresearch/detectron2/releases
+
+python3 -m pip install detectron2 -f https://dl.fbaipublicfiles.com/detectron2/wheels/cu113/torch1.10/index.html
+
+git clone https://github.com/facebookresearch/detectron2.git
+
+pip3 install opencv-python
+
+cd ~/detectron2/demo
+
+export DISPLAY=192.168.8.10:0.0
+
+python3 demo.py --config-file ../configs/COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml \
+  --input input1.jpg input2.jpg \
+  --opts MODEL.WEIGHTS detectron2://COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x/137849600/model_final_f10217.pkl
+  
+
+cd ~/detectron2/datasets
+./prepare_for_tests.sh
+
+
+#使用Detectron2训练自己的数据集 https://www.codeleading.com/article/38335756898/
+
+export DETECTRON2_DATASETS=~/detectron2/datasets
+
+=============修改 Base-RCNN-FPN.yaml=============
+DATASETS:
+  TRAIN: ("coco_2017_val_100",)
+  TEST: ("coco_2017_val_100",)
+=============修改 Base-RCNN-FPN.yaml=============
+
+cd ~/detectron2/tools
+
+./train_net.py \
+  --config-file ../configs/COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_1x.yaml \
+  --num-gpus 1 SOLVER.IMS_PER_BATCH 2 SOLVER.BASE_LR 0.0025
+
+ 
+AttributeError: module 'distutils' has no attribute 'version'
+
+
+--Method-2
+pip3 install torch==1.8.2+cu111 torchvision==0.9.2+cu111 torchaudio==0.8.2 -f https://download.pytorch.org/whl/lts/1.8/torch_lts.html
+
+# install detectron2: https://github.com/facebookresearch/detectron2/releases
+
+git clone https://github.com/facebookresearch/detectron2.git
+
+cd detectron2
+rm -rf build/ **/*.so
+cd ..
+python3 -m pip install -e detectron2
+
+export DISPLAY=192.168.8.10:0.0
+
+cd detectron2/demo
+
+python3 demo.py --config-file ../configs/COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml \
+  --input input1.jpg input2.jpg \
+  --opts MODEL.WEIGHTS detectron2://COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x/137849600/model_final_f10217.pkl
+
+python3 demo.py --config-file ../configs/COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml   --input *jpg  --opts MODEL.WEIGHTS detectron2://COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x/137849600/model_final_f10217.pkl
+
+
+cd ~/detectron2/datasets
+./prepare_for_tests.sh
+
+
+#使用Detectron2训练自己的数据集 https://www.codeleading.com/article/38335756898/
+
+export DETECTRON2_DATASETS=~/detectron2/datasets
+
+=============修改 Base-RCNN-FPN.yaml=============
+DATASETS:
+  TRAIN: ("coco_2017_val_100",)
+  TEST: ("coco_2017_val_100",)
+=============修改 Base-RCNN-FPN.yaml=============
+
+cd ~/detectron2/tools
+
+./train_net.py \
+  --config-file ../configs/COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_1x.yaml \
+  --num-gpus 1 SOLVER.IMS_PER_BATCH 2 SOLVER.BASE_LR 0.0025
